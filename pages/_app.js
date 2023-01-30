@@ -1,7 +1,13 @@
 import '@/styles/globals.css'
+import  { store } from '../store/store'
+import { Provider } from 'react-redux'
 
 export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+  <Provider store={store}>
+    <Component {...pageProps} />
+    </Provider>
+    )
 }
 
 // https://docs.spacexdata.com/#d65a7f85-e0c7-41ce-b41d-9ad20a238d90
