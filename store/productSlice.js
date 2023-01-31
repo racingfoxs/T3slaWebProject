@@ -14,7 +14,7 @@ export const fetchProducts = createAsyncThunk(
       //const response = await fetch(`url`); //where you want to fetch data
       //Your Axios code part.
       const response = await axios.get(
-        "http://api.spacexdata.com/v3/capsules"
+        "https://api.spacexdata.com/v3/capsules"
       ); //where you want to fetch data
     //   console.log("response ", response.data)
       return await response.data
