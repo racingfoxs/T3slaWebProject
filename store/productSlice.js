@@ -17,7 +17,7 @@ export const fetchProducts = createAsyncThunk(
         "http://api.spacexdata.com/v3/capsules"
       ); //where you want to fetch data
     //   console.log("response ", response.data)
-      return await response.data;
+      return await response.data
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }

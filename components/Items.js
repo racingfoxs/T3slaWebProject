@@ -3,53 +3,47 @@ import { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts, selectProducts } from "../store/productSlice";
+import {
+  setStatusQuery,
+  setTypeQuery,
+  setDateQuery,
+} from "../store/filterSlice";
 
 const Items = () => {
   const dispatch = useDispatch();
   const { products, loading, error } = useSelector(selectProducts);
+  const statusQuery = useSelector((state) => state.filterSlice.statusQuery);
+  const typeQuery = useSelector((state) => state.filterSlice.typeQuery);
+  const dateQuery = useSelector((state) => state.filterSlice.dateQuery);
+
   let itemsPerPage = 4;
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemstotal, setItemstotal] = useState();
   const items = [...Array(itemstotal).keys()];
   const [capsule, setCapsule] = useState([]);
-  const [query, setQuery] = useState("");
-  const [tquery, setTquery] = useState("");
-  const [dquery, setDquery] = useState("");
-
-  const onSelect = (event) => {
-    setQuery(event.target.value);
-  };
-  const onTypeSelect = (event) => {
-    setTquery(event.target.value);
-  };
-
-  const onDateSelect = (event) => {
-    setDquery(event.target.value);
-  };
-  const onReset = () => {
-    setQuery("");
-    setTquery("");
-    setDquery("");
-  };
 
   useEffect(() => {
+    console.log(loading);
     if (loading === "ideal") {
       dispatch(fetchProducts());
-      console.log("checking if fetch");
+      // console.log("checking if fetch");
     }
-    console.log(loading);
-    console.log(capsule);
+    // console.log(capsule);
 
     const endOffset = itemOffset + itemsPerPage;
     if (loading === "loaded") {
-      const dataFilter = products.filter(
-        (product) =>
-          product.status.includes(query) &&
-          product.type.includes(tquery) &&
-          JSON.stringify(formatDate(product.original_launch)).includes(dquery)
-      );
-      console.log("Data Filter value", dataFilter);
+      const dataFilter = products
+        .slice()
+        .sort((a, b) => (a.status > b.status ? -1 : 1))
+        .reverse()
+        .filter(
+          (product) =>
+            product.status.includes(statusQuery) &&
+            product.type.includes(typeQuery) &&
+            formatDate(product.original_launch).includes(dateQuery)
+        );
+      // console.log("Data Filter value", dataFilter);
 
       setCapsule(dataFilter.slice(itemOffset, endOffset));
       setItemstotal(dataFilter.length);
@@ -62,16 +56,34 @@ const Items = () => {
     itemstotal,
     itemOffset,
     itemsPerPage,
-    query,
-    tquery,
-    dquery,
+    statusQuery,
+    typeQuery,
+    dateQuery,
   ]);
+
+  // console.log(itemstotal, "Itemtotal")
+  const onSelect = (event) => {
+    dispatch(setStatusQuery(event.target.value));
+  };
+  const onTypeSelect = (event) => {
+    dispatch(setTypeQuery(event.target.value));
+  };
+
+  const onDateSelect = (event) => {
+    dispatch(setDateQuery(event.target.value));
+  };
+  const onReset = (e) => {
+    e.preventDefault();
+    dispatch(setStatusQuery(""));
+    dispatch(setTypeQuery(""));
+    dispatch(setDateQuery(""));
+  };
 
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % items.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
+    // console.log(
+    //   // `User requested page number ${event.selected}, which is offset ${newOffset}`
+    // );
     setItemOffset(newOffset);
   };
 
@@ -85,16 +97,20 @@ const Items = () => {
       .reduce((map, obj) => map.set(obj.type, obj), new Map())
       .values(),
   ];
-  const allDatesUnix = [
-    ...products
-      .reduce((map, obj) => map.set(obj.original_launch, obj), new Map())
-      .values(),
-  ];
-
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
+    const options = { year: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const allDatesUnix = [
+    // .sort((a, b) => a.original_launch > b.original_launch ? -1 : 1)
+    ...products
+      .reduce(
+        (map, obj) => map.set(formatDate(obj.original_launch), obj),
+        new Map()
+      )
+      .values(),
+  ];
 
   const capitalizeWords = (str) => {
     return str
@@ -104,6 +120,7 @@ const Items = () => {
       .join(" ");
   };
 
+  // console.log(capsule);
   return (
     <>
       <section className="p-6 dark:bg-gray-800 dark:text-gray-50">
@@ -136,9 +153,7 @@ const Items = () => {
                             return (
                               <option
                                 key={index}
-                                value={JSON.stringify(
-                                  formatDate(items.original_launch)
-                                )}
+                                value={formatDate(items.original_launch)}
                               >
                                 {formatDate(items.original_launch)}
                               </option>
@@ -214,7 +229,38 @@ const Items = () => {
       <section className="dark:bg-gray-800 dark:text-gray-100">
         <div className="container flex flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
-
+          {loading === "loaded" && capsule.length === 0 ? (
+            <section className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
+              <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  className="w-40 h-40 dark:text-gray-600"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M256,16C123.452,16,16,123.452,16,256S123.452,496,256,496,496,388.548,496,256,388.548,16,256,16ZM403.078,403.078a207.253,207.253,0,1,1,44.589-66.125A207.332,207.332,0,0,1,403.078,403.078Z"
+                  ></path>
+                  <rect
+                    width="176"
+                    height="32"
+                    x="168"
+                    y="320"
+                    fill="currentColor"
+                  ></rect>
+                  <polygon
+                    fill="currentColor"
+                    points="210.63 228.042 186.588 206.671 207.958 182.63 184.042 161.37 162.671 185.412 138.63 164.042 117.37 187.958 141.412 209.329 120.042 233.37 143.958 254.63 165.329 230.588 189.37 251.958 210.63 228.042"
+                  ></polygon>
+                  <polygon
+                    fill="currentColor"
+                    points="383.958 182.63 360.042 161.37 338.671 185.412 314.63 164.042 293.37 187.958 317.412 209.329 296.042 233.37 319.958 254.63 341.329 230.588 365.37 251.958 386.63 228.042 362.588 206.671 383.958 182.63"
+                  ></polygon>
+                </svg>
+                <p className="text-3xl">Sorry ! No Result Found</p>
+              </div>
+            </section>
+          ) : null}
           {loading === "loaded" ? (
             capsule.map((nproducts, index) => {
               return (
@@ -266,26 +312,28 @@ const Items = () => {
         </div>
 
         <div className="flex justify-center items-center pb-32">
-          <ReactPaginate
-            nextLabel=">"
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={3}
-            marginPagesDisplayed={2}
-            pageCount={pageCount}
-            previousLabel="<"
-            pageClassName="inline-flex items-center px-6 py-2 text-sm font-bold border dark:border-gray-700"
-            pageLinkClassName=""
-            previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
-            previousLinkClassName=""
-            nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
-            nextLinkClassName=""
-            breakLabel="..."
-            breakClassName=""
-            breakLinkClassName=""
-            containerClassName=""
-            activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
-            renderOnZeroPageCount={null}
-          />
+          {loading === "loaded" && itemstotal > 4 ? (
+            <ReactPaginate
+              nextLabel=">"
+              onPageChange={handlePageClick}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={2}
+              pageCount={pageCount}
+              previousLabel="<"
+              pageClassName="inline-flex items-center px-6 py-2 text-sm font-bold border dark:border-gray-700"
+              pageLinkClassName=""
+              previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
+              previousLinkClassName=""
+              nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
+              nextLinkClassName=""
+              breakLabel="..."
+              breakClassName=""
+              breakLinkClassName=""
+              containerClassName=""
+              activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
+              renderOnZeroPageCount={null}
+            />
+          ) : null}
         </div>
       </section>
     </>
