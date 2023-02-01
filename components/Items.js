@@ -12,25 +12,27 @@ import ProductsModal from "./ProductsModal";
 
 const Items = () => {
   const dispatch = useDispatch();
+
+  //Getting data from Redux store
   const { products, loading, error } = useSelector(selectProducts);
   const statusQuery = useSelector((state) => state.filterSlice.statusQuery);
   const typeQuery = useSelector((state) => state.filterSlice.typeQuery);
   const dateQuery = useSelector((state) => state.filterSlice.dateQuery);
 
+  //For Pagination
   let itemsPerPage = 4;
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemstotal, setItemstotal] = useState();
   const items = [...Array(itemstotal).keys()];
+
+  //Storing Filter Data to display only 4 items
   const [capsule, setCapsule] = useState([]);
 
   useEffect(() => {
-    // console.log(loading);
     if (loading === "ideal") {
       dispatch(fetchProducts());
-      // console.log("checking if fetch");
     }
-    // console.log(capsule);
 
     const endOffset = itemOffset + itemsPerPage;
     if (loading === "loaded") {
@@ -44,7 +46,6 @@ const Items = () => {
             product.type.includes(typeQuery) &&
             formatDate(product.original_launch).includes(dateQuery)
         );
-      // console.log("Data Filter value", dataFilter);
 
       setCapsule(dataFilter.slice(itemOffset, endOffset));
       setItemstotal(dataFilter.length);
@@ -62,17 +63,22 @@ const Items = () => {
     dateQuery,
   ]);
 
-  // console.log(itemstotal, "Itemtotal")
-  const onSelect = (event) => {
+  //Status select onChangeHandler
+  const onStatusSelect = (event) => {
     dispatch(setStatusQuery(event.target.value));
   };
+
+  //Type select onChangeHandler
   const onTypeSelect = (event) => {
     dispatch(setTypeQuery(event.target.value));
   };
 
+  //Date select onChangeHandler
   const onDateSelect = (event) => {
     dispatch(setDateQuery(event.target.value));
   };
+
+  //Reset button onClickHandler
   const onReset = (e) => {
     e.preventDefault();
     dispatch(setStatusQuery(""));
@@ -80,31 +86,34 @@ const Items = () => {
     dispatch(setDateQuery(""));
   };
 
+  //Array Offset to show how many items should be display
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % items.length;
-    // console.log(
-    //   // `User requested page number ${event.selected}, which is offset ${newOffset}`
-    // );
     setItemOffset(newOffset);
   };
 
+  //Filter for Status
   const allStatus = [
     ...products
       .reduce((map, obj) => map.set(obj.status, obj), new Map())
       .values(),
   ];
+
+  //Filter for Types
   const allTypes = [
     ...products
       .reduce((map, obj) => map.set(obj.type, obj), new Map())
       .values(),
   ];
+
+  //Function to conver and get year only
   const formatDate = (dateString) => {
     const options = { year: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  //Filter for Date
   const allDatesUnix = [
-    // .sort((a, b) => a.original_launch > b.original_launch ? -1 : 1)
     ...products
       .reduce(
         (map, obj) => map.set(formatDate(obj.original_launch), obj),
@@ -113,6 +122,7 @@ const Items = () => {
       .values(),
   ];
 
+  //To Captilized the first letter of array
   const capitalizeWords = (str) => {
     return str
       .toLowerCase()
@@ -121,19 +131,17 @@ const Items = () => {
       .join(" ");
   };
 
-  const [singleCapsule, setSingleCapsule] = useState([])
-  const  [modalProduct, setModalProduct] = useState(false);
+  //modal code start here by raj
+  const [singleCapsule, setSingleCapsule] = useState([]);
+  const [modalProduct, setModalProduct] = useState(false);
 
-  const modalProductClick =(e, nproducts)=>{
+  const modalProductClick = (e, nproducts) => {
     e.preventDefault();
     setSingleCapsule(nproducts);
     setModalProduct(true);
-    // console.log(singleCapsule, "Single Capsule")
-    // setSingleCapsule()
-  }
+  };
+  //modal code end here by raj
 
-
-  // console.log(capsule);
   return (
     <>
       <section className="p-6 dark:bg-gray-800 dark:text-gray-50">
@@ -158,6 +166,7 @@ const Items = () => {
                   <div>
                     <select
                       className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
+                      value={dateQuery}
                       onChange={onDateSelect}
                     >
                       <option value="">All</option>
@@ -171,7 +180,6 @@ const Items = () => {
                                 {formatDate(items.original_launch)}
                               </option>
                             );
-                            // {new Intl.DateTimeFormat('en-US', {year: 'numeric'}).format(items.original_launch)}
                           })
                         : "Loading"}
                     </select>
@@ -186,7 +194,8 @@ const Items = () => {
                   <div>
                     <select
                       className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
-                      onChange={onSelect}
+                      value={statusQuery}
+                      onChange={onStatusSelect}
                     >
                       <option value="">All</option>
                       {loading === "loaded"
@@ -210,6 +219,7 @@ const Items = () => {
                   <div>
                     <select
                       className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
+                      value={typeQuery}
                       onChange={onTypeSelect}
                     >
                       <option value="">All</option>
@@ -232,7 +242,7 @@ const Items = () => {
                   onClick={onReset}
                   className="px-4 py-2 border rounded-md dark:border-gray-100 hover:bg-violet-400 hover:text-gray-50"
                 >
-                  Reset
+                  Reset All
                 </button>
               </div>
             </div>
@@ -279,7 +289,7 @@ const Items = () => {
               return (
                 <div
                   key={index}
-                  onClick ={ (e) => modalProductClick(e, nproducts)}
+                  onClick={(e) => modalProductClick(e, nproducts)}
                   className=" max-w-xs p-6 rounded-md hover:cursor-pointer shadow-md dark:bg-gray-900 dark:text-gray-50 hover:scale-105 transition-all ease-in-out"
                 >
                   <img
@@ -324,7 +334,7 @@ const Items = () => {
             </div>
           )}
         </div>
-
+        {/* pagination part start */}
         <div className="flex justify-center items-center py-12">
           {loading === "loaded" && itemstotal > 4 ? (
             <ReactPaginate
@@ -352,10 +362,13 @@ const Items = () => {
       </section>
 
       <section className="relative">
-      {loading ==="loaded" && modalProduct ? <ProductsModal setModalProduct={setModalProduct} singleCapsule={singleCapsule}/> : null}
-        
+        {loading === "loaded" && modalProduct ? (
+          <ProductsModal
+            setModalProduct={setModalProduct}
+            singleCapsule={singleCapsule}
+          />
+        ) : null}
       </section>
-
     </>
   );
 };

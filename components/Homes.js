@@ -34,7 +34,7 @@ const Homes = () => {
             </div>
           </div>
           <div className="flex items-center lg:flex-grow justify-center p-6 mt-8 lg:mt-0 h-72 sm:h-80 lg:h-96 xl:h-112 2xl:h-128">
-            <img src="/pngwing.png" alt="hero " />
+            <img src="/capsuleMain.webp" alt="Capsule Hero Image" width="500" height="540"/>
           </div>
         </div>
       </section>
