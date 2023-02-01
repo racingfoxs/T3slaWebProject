@@ -8,6 +8,7 @@ import {
   setTypeQuery,
   setDateQuery,
 } from "../store/filterSlice";
+import ProductsModal from "./ProductsModal";
 
 const Items = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ const Items = () => {
   const [capsule, setCapsule] = useState([]);
 
   useEffect(() => {
-    console.log(loading);
+    // console.log(loading);
     if (loading === "ideal") {
       dispatch(fetchProducts());
       // console.log("checking if fetch");
@@ -119,6 +120,18 @@ const Items = () => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
+
+  const [singleCapsule, setSingleCapsule] = useState([])
+  const  [modalProduct, setModalProduct] = useState(false);
+
+  const modalProductClick =(e, nproducts)=>{
+    e.preventDefault();
+    setSingleCapsule(nproducts);
+    setModalProduct(true);
+    // console.log(singleCapsule, "Single Capsule")
+    // setSingleCapsule()
+  }
+
 
   // console.log(capsule);
   return (
@@ -217,7 +230,7 @@ const Items = () => {
                 <button
                   type="button"
                   onClick={onReset}
-                  className="px-4 py-2 border rounded-md dark:border-gray-100 hover:bg-green-800 hover:text-gray-200"
+                  className="px-4 py-2 border rounded-md dark:border-gray-100 hover:bg-violet-400 hover:text-gray-50"
                 >
                   Reset
                 </button>
@@ -230,7 +243,7 @@ const Items = () => {
         <div className="container flex flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
           {loading === "loaded" && capsule.length === 0 ? (
-            <section className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
+            <div className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
               <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -259,14 +272,15 @@ const Items = () => {
                 </svg>
                 <p className="text-3xl">Sorry ! No Result Found</p>
               </div>
-            </section>
+            </div>
           ) : null}
           {loading === "loaded" ? (
             capsule.map((nproducts, index) => {
               return (
                 <div
                   key={index}
-                  className="max-w-xs p-6 rounded-md shadow-md dark:bg-gray-900 dark:text-gray-50"
+                  onClick ={ (e) => modalProductClick(e, nproducts)}
+                  className=" max-w-xs p-6 rounded-md hover:cursor-pointer shadow-md dark:bg-gray-900 dark:text-gray-50 hover:scale-105 transition-all ease-in-out"
                 >
                   <img
                     src="https://dummyimage.com/400x400"
@@ -311,7 +325,7 @@ const Items = () => {
           )}
         </div>
 
-        <div className="flex justify-center items-center pb-32">
+        <div className="flex justify-center items-center py-12">
           {loading === "loaded" && itemstotal > 4 ? (
             <ReactPaginate
               nextLabel=">"
@@ -320,7 +334,7 @@ const Items = () => {
               marginPagesDisplayed={2}
               pageCount={pageCount}
               previousLabel="<"
-              pageClassName="inline-flex items-center px-6 py-2 text-sm font-bold border dark:border-gray-700"
+              pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border dark:border-gray-700"
               pageLinkClassName=""
               previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
               previousLinkClassName=""
@@ -336,6 +350,12 @@ const Items = () => {
           ) : null}
         </div>
       </section>
+
+      <section className="relative">
+      {loading ==="loaded" && modalProduct ? <ProductsModal setModalProduct={setModalProduct} singleCapsule={singleCapsule}/> : null}
+        
+      </section>
+
     </>
   );
 };
