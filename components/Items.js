@@ -250,7 +250,7 @@ const Items = () => {
         </form>
       </section>
       <section className="dark:bg-gray-800 dark:text-gray-100">
-        <div className="container flex flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
+        <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
           {loading === "loaded" && capsule.length === 0 ? (
             <div className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
