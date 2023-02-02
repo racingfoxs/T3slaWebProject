@@ -289,11 +289,10 @@ const Items = () => {
               return (
                 <div
                   key={index}
-                  onClick={(e) => modalProductClick(e, nproducts)}
-                  className=" max-w-xs p-6 rounded-md hover:cursor-pointer shadow-md dark:bg-gray-900 dark:text-gray-50 hover:scale-105 transition-all ease-in-out"
+                  className=" max-w-xs p-6 rounded-md shadow-md dark:bg-gray-900 dark:text-gray-50 hover:scale-105 transition-all ease-in-out"
                 >
                   <img
-                    src="https://dummyimage.com/400x400"
+                    src="https://source.unsplash.com/random/300x300/?space,spaceship,nasa,ufo"
                     alt=""
                     className="object-cover object-center w-full rounded-md h-72 dark:bg-gray-500"
                   />
@@ -306,7 +305,7 @@ const Items = () => {
                         ? nproducts.missions.map((d, i) => {
                             return (
                               <span key={i}>
-                                {d.name}
+                                {d.name.slice(0, 24)}
                                 {i < nproducts.missions.length - 1 ? ", " : ""}
                               </span>
                             );
@@ -318,9 +317,18 @@ const Items = () => {
                     {products &&
                     nproducts.details &&
                     nproducts.details.length > 0
-                      ? nproducts.details
+                      ? nproducts.details.slice(0, 33) + "..."
                       : "Details Coming soon..."}
                   </p>
+                  <div className="flex justify-center item-center">
+                    <button
+                      onClick={(e) => modalProductClick(e, nproducts)}
+                      type="button"
+                      className="hover:scale-105 hover:border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
+                    >
+                      Read More
+                    </button>
+                  </div>
                 </div>
               );
             })
@@ -337,26 +345,28 @@ const Items = () => {
         {/* pagination part start */}
         <div className="flex justify-center items-center py-12">
           {loading === "loaded" && itemstotal > 4 ? (
-            <ReactPaginate
-              nextLabel=">"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={2}
-              pageCount={pageCount}
-              previousLabel="<"
-              pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border dark:border-gray-700"
-              pageLinkClassName=""
-              previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
-              previousLinkClassName=""
-              nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
-              nextLinkClassName=""
-              breakLabel="..."
-              breakClassName=""
-              breakLinkClassName=""
-              containerClassName=""
-              activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
-              renderOnZeroPageCount={null}
-            />
+            <nav aria-label="Pagination">
+              <ReactPaginate
+                nextLabel=">"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={2}
+                pageCount={pageCount}
+                previousLabel="<"
+                pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border dark:border-gray-700"
+                pageLinkClassName=""
+                previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
+                previousLinkClassName=""
+                nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
+                nextLinkClassName=""
+                breakLabel="..."
+                breakClassName=""
+                breakLinkClassName=""
+                containerClassName=""
+                activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
+                renderOnZeroPageCount={null}
+              />
+            </nav>
           ) : null}
         </div>
       </section>
