@@ -345,7 +345,7 @@ const Items = () => {
         {/* pagination part start */}
         <div className="flex justify-center items-center py-12">
           {loading === "loaded" && itemstotal > 4 ? (
-            <nav aria-label="Pagination">
+            <nav aria-label="Page navigation">
               <ReactPaginate
                 nextLabel=">"
                 onPageChange={handlePageClick}
@@ -354,19 +354,18 @@ const Items = () => {
                 pageCount={pageCount}
                 previousLabel="<"
                 pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border dark:border-gray-700"
-                pageLinkClassName=""
+                pageLinkClassName="py-2"
                 previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
-                previousLinkClassName=""
+                previousLinkClassName="py-2"
                 nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
-                nextLinkClassName=""
+                nextLinkClassName="py-2"
                 breakLabel="..."
                 breakClassName=""
-                breakLinkClassName=""
-                containerClassName=""
+                breakLinkClassName="py-2"
+                containerClassName="py-2"
                 activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
                 renderOnZeroPageCount={null}
-              />
-            </nav>
+              /></nav>
           ) : null}
         </div>
       </section>
