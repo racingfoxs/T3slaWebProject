@@ -9,18 +9,17 @@ import {
   setDateQuery,
 } from "../store/filterSlice";
 import ProductsModal from "./ProductsModal";
-
+const itemsPerPage = 4;
 const Items = () => {
   const dispatch = useDispatch();
 
   //Getting data from Redux store
   const { products, loading, error } = useSelector(selectProducts);
-  const statusQuery = useSelector((state) => state.filterSlice.statusQuery);
-  const typeQuery = useSelector((state) => state.filterSlice.typeQuery);
-  const dateQuery = useSelector((state) => state.filterSlice.dateQuery);
+  const { statusQuery, typeQuery, dateQuery } = useSelector(
+    (state) => state.filterSlice
+  );
 
   //For Pagination
-  let itemsPerPage = 4;
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemstotal, setItemstotal] = useState();
@@ -29,31 +28,36 @@ const Items = () => {
   //Storing Filter Data to display only 4 items
   const [capsule, setCapsule] = useState([]);
 
+  console.log("Render")
   useEffect(() => {
     if (loading === "ideal") {
       dispatch(fetchProducts());
     }
+  }, []);
 
-    const endOffset = itemOffset + itemsPerPage;
-    if (loading === "loaded") {
-      const dataFilter = products
+  const endOffset = itemOffset + itemsPerPage;
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const dataFilter = products //8
         .slice()
         .sort((a, b) => (a.status > b.status ? -1 : 1))
-        .reverse()
+        // .reverse()
         .filter(
           (product) =>
             product.status.includes(statusQuery) &&
             product.type.includes(typeQuery) &&
             formatDate(product.original_launch).includes(dateQuery)
         );
-
-      setCapsule(dataFilter.slice(itemOffset, endOffset));
       setItemstotal(dataFilter.length);
+      setCapsule(dataFilter.slice(itemOffset, endOffset)); //4
+
+      // console.log("Datafilter", dataFilter);
+      setPageCount(Math.ceil(items.length / itemsPerPage));
     }
 
-    setPageCount(Math.ceil(items.length / itemsPerPage));
+    // console.log("Capsule", capsule);
   }, [
-    dispatch,
     loading,
     itemstotal,
     itemOffset,
@@ -291,15 +295,15 @@ const Items = () => {
                   key={index}
                   className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
                 >
+                  <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
+                    {nproducts.type}
+                  </span>
                   <img
-                    src="https://source.unsplash.com/random/300x300/?space,spaceship,nasa,ufo"
-                    alt=""
+                    src="./capsuleitem.webp"
+                    alt="Capsule Image"
                     className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
                   />
                   <div className="mt-6 mb-2">
-                    <span className="block text-xs font-medium tracking-widest uppercase text-violet-400">
-                      {nproducts.type}
-                    </span>
                     <h2 className="text-xl font-semibold tracking-wide">
                       {nproducts.missions.length > 0
                         ? nproducts.missions.map((d, i) => {
@@ -324,7 +328,7 @@ const Items = () => {
                     <button
                       onClick={(e) => modalProductClick(e, nproducts)}
                       type="button"
-                      className="hover:scale-105 hover:border border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
+                      className="hover:scale-105 hover:border border border-gray-900 hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
                     >
                       Read More
                     </button>
@@ -365,7 +369,8 @@ const Items = () => {
                 containerClassName="py-2"
                 activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border bg-violet-400 text-gray-900 border-gray-700"
                 renderOnZeroPageCount={null}
-              /></nav>
+              />
+            </nav>
           ) : null}
         </div>
       </section>
@@ -382,4 +387,4 @@ const Items = () => {
   );
 };
 
-export default Items;
+export default React.memo(Items);
