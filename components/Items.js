@@ -324,7 +324,7 @@ const Items = () => {
                     <button
                       onClick={(e) => modalProductClick(e, nproducts)}
                       type="button"
-                      className="hover:scale-105 hover:border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
+                      className="hover:scale-105 hover:border border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
                     >
                       Read More
                     </button>
