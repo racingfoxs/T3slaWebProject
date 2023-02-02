@@ -4,11 +4,11 @@ import Items from "./Items";
 const Homes = () => {
   return (
     <>
-      <section className=" dark:bg-gray-800 dark:text-gray-100">
+      <section className=" bg-gray-800 text-gray-100">
         <div className="container flex flex-col justify-center p-6 mx-auto sm:py-12 lg:py-24 lg:flex-row lg:justify-between">
           <div className="flex flex-col justify-center p-6 text-center rounded-sm lg:max-w-md xl:max-w-lg lg:text-left">
             <h1 className="text-5xl font-bold leading-none sm:text-6xl">
-              TAKING <span className="dark:text-violet-400">HUMANS</span> TO
+              TAKING <span className="text-violet-400">HUMANS</span> TO
               SPACE
             </h1>
             <p className="mt-6 mb-8 text-lg sm:mb-12">
@@ -20,14 +20,14 @@ const Homes = () => {
               <a
                 rel="noopener noreferrer"
                 href="#"
-                className="px-8 py-3 text-lg font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
+                className="hover:scale-105 hover:border border hover:bg-gray-800 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
               >
                 Learn More
               </a>
               <a
                 rel="noopener noreferrer"
                 href="#"
-                className="px-8 py-3 text-lg font-semibold border rounded dark:border-gray-100"
+                className="hover:scale-105 hover:border hover:bg-violet-400 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out px-8 py-3 text-lg font-semibold rounded  text-gray-100 border "
               >
                 Contact
               </a>

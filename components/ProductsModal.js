@@ -7,7 +7,7 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
 
   return (
     <div className="fixed bg-opacity-40 top-2/4  left-2/4 -translate-x-2/4 -translate-y-2/4 shadow-xl transition-all ease-in-out bg-black w-screen h-screen">
-      <div className="relative flex flex-col items-center   top-2/4  left-2/4 -translate-x-2/4 -translate-y-2/4 shadow-xl lg:max-w-lg gap-4 p-6 rounded-md sm:py-8 sm:px-12 dark:bg-violet-400">
+      <div className="relative flex flex-col items-center   top-2/4  left-2/4 -translate-x-2/4 -translate-y-2/4 shadow-xl lg:max-w-lg gap-4 p-6 rounded-md sm:py-8 sm:px-12 bg-violet-400">
         <button
           onClick={closeHandler}
           className="absolute top-2 right-2"
@@ -22,10 +22,10 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
           </svg>
         </button>
 
-        <div className="max-w-xs w-screen p-6 rounded-md shadow-md dark:bg-gray-900 dark:text-gray-50">
+        <div className="max-w-xs w-screen p-6 rounded-md shadow-md bg-gray-900 text-gray-50">
           <div className="mt-6 mb-2">
             <div className=" mt-6 mb-2">
-              <h2 className="block text-xs font-medium tracking-widest uppercase pr-4 dark:text-violet-400">
+              <h2 className="block text-xs font-medium tracking-widest uppercase pr-4 text-violet-400">
                 Name:
               </h2>
               <p className="text-xl font-semibold tracking-wide pt-2">
@@ -42,10 +42,10 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
               </p>
             </div>
             <div className=" mt-6 mb-2">
-              <h2 className=" block text-xs font-medium tracking-widest uppercase dark:text-violet-400">
+              <h2 className=" block text-xs font-medium tracking-widest uppercase text-violet-400">
                 Details:
               </h2>
-              <p className="dark:text-gray-100 pt-2">
+              <p className="text-gray-100 pt-2">
                 {singleCapsule &&
                 singleCapsule.details &&
                 singleCapsule.details.length > 0
@@ -54,7 +54,7 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
               </p>
             </div>
             <div className=" flex justify-between items-center mt-6 mb-2">
-              <span className="block text-xs font-medium tracking-widest uppercase  dark:text-violet-400">
+              <span className="block text-xs font-medium tracking-widest uppercase  text-violet-400">
                 Type:
               </span>
               <h2 className="text-xl font-semibold tracking-wide">
@@ -62,7 +62,7 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
               </h2>
             </div>
             <div className=" flex justify-between items-center mt-6 mb-2">
-              <span className="block text-xs font-medium tracking-widest uppercase dark:text-violet-400">
+              <span className="block text-xs font-medium tracking-widest uppercase text-violet-400">
                 Status:
               </span>
               <h2 className="text-xl font-semibold tracking-wide">
@@ -70,7 +70,7 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
               </h2>
             </div>
             <div className=" flex justify-between items-center mt-6 mb-2">
-              <span className="block text-xs font-medium tracking-widest uppercase dark:text-violet-400">
+              <span className="block text-xs font-medium tracking-widest uppercase text-violet-400">
                 Landings:
               </span>
               <h2 className="text-xl font-semibold tracking-wide">
@@ -78,7 +78,7 @@ const ProductsModal = ({ singleCapsule, setModalProduct }) => {
               </h2>
             </div>
             <div className=" flex justify-between items-center mt-6 mb-2">
-              <span className="block text-xs font-medium tracking-widest uppercase dark:text-violet-400">
+              <span className="block text-xs font-medium tracking-widest uppercase text-violet-400">
                 Reuse count:
               </span>
               <h2 className="text-xl font-semibold tracking-wide">

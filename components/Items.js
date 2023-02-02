@@ -144,13 +144,13 @@ const Items = () => {
 
   return (
     <>
-      <section className="p-6 dark:bg-gray-800 dark:text-gray-50">
+      <section className="p-6 bg-gray-800 text-gray-50">
         <form
           noValidate=""
           action=""
           className="container flex flex-col mx-auto space-y-12 ng-untouched ng-pristine ng-valid"
         >
-          <fieldset className="grid grid-cols-4 gap-6 p-6 rounded-md shadow-sm dark:bg-gray-900">
+          <fieldset className="grid grid-cols-4 gap-6 p-6 rounded-md shadow-sm bg-gray-900">
             <div className="space-y-2 col-span-full lg:col-span-1">
               <p className="font-medium">Search Form</p>
               <p className="text-xs">
@@ -165,7 +165,7 @@ const Items = () => {
                 <div className="raj">
                   <div>
                     <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
+                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                       value={dateQuery}
                       onChange={onDateSelect}
                     >
@@ -193,7 +193,7 @@ const Items = () => {
                 <div className="raj">
                   <div>
                     <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
+                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                       value={statusQuery}
                       onChange={onStatusSelect}
                     >
@@ -218,7 +218,7 @@ const Items = () => {
                 <div className="raj">
                   <div>
                     <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 dark:border-gray-700 dark:text-gray-900"
+                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                       value={typeQuery}
                       onChange={onTypeSelect}
                     >
@@ -240,7 +240,7 @@ const Items = () => {
                 <button
                   type="button"
                   onClick={onReset}
-                  className="px-4 py-2 border rounded-md dark:border-gray-100 hover:bg-violet-400 hover:text-gray-50"
+                  className="px-4 py-2 border rounded-md border-gray-100 hover:bg-violet-400 hover:text-gray-50"
                 >
                   Reset All
                 </button>
@@ -249,16 +249,16 @@ const Items = () => {
           </fieldset>
         </form>
       </section>
-      <section className="dark:bg-gray-800 dark:text-gray-100">
+      <section className="bg-gray-800 text-gray-100">
         <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
           {loading === "loaded" && capsule.length === 0 ? (
-            <div className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
+            <div className="flex items-center h-full sm:p-16 bg-gray-900 text-gray-100">
               <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 512 512"
-                  className="w-40 h-40 dark:text-gray-600"
+                  className="w-40 h-40 text-gray-600"
                 >
                   <path
                     fill="currentColor"
@@ -289,15 +289,15 @@ const Items = () => {
               return (
                 <div
                   key={index}
-                  className=" max-w-xs p-6 rounded-md shadow-md dark:bg-gray-900 dark:text-gray-50 hover:scale-105 transition-all ease-in-out"
+                  className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
                 >
                   <img
                     src="https://source.unsplash.com/random/300x300/?space,spaceship,nasa,ufo"
                     alt=""
-                    className="object-cover object-center w-full rounded-md h-72 dark:bg-gray-500"
+                    className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
                   />
                   <div className="mt-6 mb-2">
-                    <span className="block text-xs font-medium tracking-widest uppercase dark:text-violet-400">
+                    <span className="block text-xs font-medium tracking-widest uppercase text-violet-400">
                       {nproducts.type}
                     </span>
                     <h2 className="text-xl font-semibold tracking-wide">
@@ -313,7 +313,7 @@ const Items = () => {
                         : "To Be Announced"}
                     </h2>
                   </div>
-                  <p className="dark:text-gray-100">
+                  <p className="text-gray-100">
                     {products &&
                     nproducts.details &&
                     nproducts.details.length > 0
@@ -324,7 +324,7 @@ const Items = () => {
                     <button
                       onClick={(e) => modalProductClick(e, nproducts)}
                       type="button"
-                      className="hover:scale-105 hover:border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
+                      className="hover:scale-105 hover:border hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
                     >
                       Read More
                     </button>
@@ -334,10 +334,10 @@ const Items = () => {
             })
           ) : (
             <div className="flex flex-col m-8 rounded shadow-md w-60 sm:w-80 animate-pulse h-96">
-              <div className="h-60 rounded-t dark:bg-gray-700"></div>
-              <div className="flex-1 px-4 py-8 space-y-4 sm:p-8 dark:bg-gray-900">
-                <div className="w-full h-6 rounded dark:bg-gray-700"></div>
-                <div className="w-full h-6 rounded dark:bg-gray-700"></div>
+              <div className="h-60 rounded-t bg-gray-700"></div>
+              <div className="flex-1 px-4 py-8 space-y-4 sm:p-8 bg-gray-900">
+                <div className="w-full h-6 rounded bg-gray-700"></div>
+                <div className="w-full h-6 rounded bg-gray-700"></div>
               </div>
             </div>
           )}
@@ -353,17 +353,17 @@ const Items = () => {
                 marginPagesDisplayed={2}
                 pageCount={pageCount}
                 previousLabel="<"
-                pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border dark:border-gray-700"
+                pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border border-gray-700"
                 pageLinkClassName="py-2"
-                previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md dark:border-gray-700"
+                previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md border-gray-700"
                 previousLinkClassName="py-2"
-                nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md dark:border-gray-700"
+                nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md border-gray-700"
                 nextLinkClassName="py-2"
                 breakLabel="..."
                 breakClassName=""
                 breakLinkClassName="py-2"
                 containerClassName="py-2"
-                activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border dark:bg-violet-400 dark:text-gray-900 dark:border-gray-700"
+                activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border bg-violet-400 text-gray-900 border-gray-700"
                 renderOnZeroPageCount={null}
               /></nav>
           ) : null}
