@@ -1,6 +1,4 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts, selectProducts } from "../store/productSlice";
 import {
@@ -9,7 +7,7 @@ import {
   setDateQuery,
 } from "../store/filterSlice";
 import ProductsModal from "./ProductsModal";
-const itemsPerPage = 4;
+
 const Items = () => {
   const dispatch = useDispatch();
 
@@ -19,67 +17,50 @@ const Items = () => {
     (state) => state.filterSlice
   );
 
-  //For Pagination
-  const [pageCount, setPageCount] = useState(0);
-  const [itemOffset, setItemOffset] = useState(0);
-  const [itemstotal, setItemstotal] = useState();
-  const items = [...Array(itemstotal).keys()];
+  //Saving FilterData from Products
+  const [filterData, setFilterData] = useState([]);
 
-  //Storing Filter Data to display only 4 items
-  const [capsule, setCapsule] = useState([]);
+  //For new pagination
+  const [page, setPage] = useState(1);
+  const pageHandle = useCallback(
+    (prev) => {
+      if (prev > 0 && prev <= Math.round(filterData.length / 4) && prev !== page)
+        setPage(prev);
+    },
+    [filterData, page, setPage]
+  );
 
   console.log("Render")
   useEffect(() => {
     if (loading === "ideal") {
       dispatch(fetchProducts());
     }
-  }, []);
-
-  const endOffset = itemOffset + itemsPerPage;
-
-  useEffect(() => {
-    if (products.length > 0) {
-      const dataFilter = products //8
-        .slice()
-        .sort((a, b) => (a.status > b.status ? -1 : 1))
-        // .reverse()
-        .filter(
-          (product) =>
-            product.status.includes(statusQuery) &&
-            product.type.includes(typeQuery) &&
-            formatDate(product.original_launch).includes(dateQuery)
-        );
-      setItemstotal(dataFilter.length);
-      setCapsule(dataFilter.slice(itemOffset, endOffset)); //4
-
-      // console.log("Datafilter", dataFilter);
-      setPageCount(Math.ceil(items.length / itemsPerPage));
+    if (loading === "loaded") {
+      const dataFilter = products.filter(
+        (product) =>
+          product.status.includes(statusQuery) &&
+          product.type.includes(typeQuery) &&
+          formatDate(product.original_launch).includes(dateQuery)
+      );
+      setFilterData(dataFilter);
     }
+  }, [dispatch, products, statusQuery, typeQuery, dateQuery]);
 
-    // console.log("Capsule", capsule);
-  }, [
-    loading,
-    itemstotal,
-    itemOffset,
-    itemsPerPage,
-    statusQuery,
-    typeQuery,
-    dateQuery,
-  ]);
-
-  //Status select onChangeHandler
-  const onStatusSelect = (event) => {
-    dispatch(setStatusQuery(event.target.value));
-  };
-
-  //Type select onChangeHandler
-  const onTypeSelect = (event) => {
-    dispatch(setTypeQuery(event.target.value));
-  };
-
-  //Date select onChangeHandler
-  const onDateSelect = (event) => {
-    dispatch(setDateQuery(event.target.value));
+  //OnChnage Select Tag
+  const onChangeQuery = (type, event) => {
+    switch (type) {
+      case "status":
+        dispatch(setStatusQuery(event.target.value));
+        break;
+      case "type":
+        dispatch(setTypeQuery(event.target.value));
+        break;
+      case "date":
+        dispatch(setDateQuery(event.target.value));
+        break;
+      default:
+        break;
+    }
   };
 
   //Reset button onClickHandler
@@ -90,41 +71,45 @@ const Items = () => {
     dispatch(setDateQuery(""));
   };
 
-  //Array Offset to show how many items should be display
-  const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % items.length;
-    setItemOffset(newOffset);
-  };
-
   //Filter for Status
-  const allStatus = [
-    ...products
-      .reduce((map, obj) => map.set(obj.status, obj), new Map())
-      .values(),
-  ];
+  const allStatus = useMemo(
+    () => [
+      ...products
+        .reduce((map, obj) => map.set(obj.status, obj), new Map())
+        .values()
+    ],
+    [products]
+  );
 
   //Filter for Types
-  const allTypes = [
-    ...products
-      .reduce((map, obj) => map.set(obj.type, obj), new Map())
-      .values(),
-  ];
+  const allTypes = useMemo(
+    () => [
+      ...products
+        .reduce((map, obj) => map.set(obj.type, obj), new Map())
+        .values()
+    ],
+    [products]
+  );
 
   //Function to conver and get year only
-  const formatDate = (dateString) => {
-    const options = { year: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  
+const formatDate = useCallback((dateString) => {
+  const options = { year: "numeric" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}, []);
 
   //Filter for Date
-  const allDatesUnix = [
-    ...products
-      .reduce(
-        (map, obj) => map.set(formatDate(obj.original_launch), obj),
-        new Map()
-      )
-      .values(),
-  ];
+  const allDatesUnix = useMemo(
+    () => [
+      ...products
+        .reduce(
+          (map, obj) => map.set(formatDate(obj.original_launch), obj),
+          new Map()
+        )
+        .values()
+    ],
+    [products, formatDate]
+  );
 
   //To Captilized the first letter of array
   const capitalizeWords = (str) => {
@@ -139,16 +124,18 @@ const Items = () => {
   const [singleCapsule, setSingleCapsule] = useState([]);
   const [modalProduct, setModalProduct] = useState(false);
 
-  const modalProductClick = (e, nproducts) => {
-    e.preventDefault();
-    setSingleCapsule(nproducts);
-    setModalProduct(true);
-  };
-  //modal code end here by raj
+  const modalProductClick = useCallback(
+    (e, nproducts) => {
+      e.preventDefault();
+      setSingleCapsule(nproducts);
+      setModalProduct(true);
+    },
+    [setSingleCapsule, setModalProduct]
+  );
 
   return (
     <>
-      <section className="p-6 bg-gray-800 text-gray-50">
+      <section className="p-6 pt-10 pb-10 md:pt-5 lg:pt-5 bg-gray-800 text-gray-50">
         <form
           noValidate=""
           action=""
@@ -166,78 +153,72 @@ const Items = () => {
                 <label htmlFor="firstname" className="text-sm">
                   Original launch
                 </label>
-                <div className="raj">
-                  <div>
-                    <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                      value={dateQuery}
-                      onChange={onDateSelect}
-                    >
-                      <option value="">All</option>
-                      {loading === "loaded"
-                        ? allDatesUnix.map((items, index) => {
-                            return (
-                              <option
-                                key={index}
-                                value={formatDate(items.original_launch)}
-                              >
-                                {formatDate(items.original_launch)}
-                              </option>
-                            );
-                          })
-                        : "Loading"}
-                    </select>
-                  </div>
+                <div>
+                  <select
+                    className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
+                    value={dateQuery}
+                    onChange={(event) => onChangeQuery("date", event)}
+                  >
+                    <option value="">All</option>
+                    {loading === "loaded"
+                      ? allDatesUnix.map((items, index) => {
+                          return (
+                            <option
+                              key={index}
+                              value={formatDate(items.original_launch)}
+                            >
+                              {formatDate(items.original_launch)}
+                            </option>
+                          );
+                        })
+                      : "Loading"}
+                  </select>
                 </div>
               </div>
               <div className="col-span-full sm:col-span-3">
                 <label htmlFor="lastname" className="text-sm">
                   Status
                 </label>
-                <div className="raj">
-                  <div>
-                    <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                      value={statusQuery}
-                      onChange={onStatusSelect}
-                    >
-                      <option value="">All</option>
-                      {loading === "loaded"
-                        ? allStatus.map((items, index) => {
-                            return (
-                              <option key={index} value={items.status}>
-                                {capitalizeWords(items.status)}
-                              </option>
-                            );
-                          })
-                        : "Loading"}
-                    </select>
-                  </div>
+                <div>
+                  <select
+                    className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
+                    value={statusQuery}
+                    onChange={(event) => onChangeQuery("status", event)}
+                  >
+                    <option value="">All</option>
+                    {loading === "loaded"
+                      ? allStatus.map((items, index) => {
+                          return (
+                            <option key={index} value={items.status}>
+                              {capitalizeWords(items.status)}
+                            </option>
+                          );
+                        })
+                      : "Loading"}
+                  </select>
                 </div>
               </div>
               <div className="col-span-full sm:col-span-3">
                 <label htmlFor="email" className="text-sm">
                   Type
                 </label>
-                <div className="raj">
-                  <div>
-                    <select
-                      className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                      value={typeQuery}
-                      onChange={onTypeSelect}
-                    >
-                      <option value="">All</option>
-                      {loading === "loaded"
-                        ? allTypes.map((items, index) => {
-                            return (
-                              <option key={index} value={items.type}>
-                                {items.type}
-                              </option>
-                            );
-                          })
-                        : "Loading..."}
-                    </select>
-                  </div>
+                <div>
+                  <select
+                    className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
+                    value={typeQuery}
+                    onChange={(event) => onChangeQuery("type", event)}
+                  >
+                    <option value="">All</option>
+                    {loading === "loaded"
+                      ? allTypes.map((items, index) => {
+                          return (
+                            <option key={index} value={items.type}>
+                              {items.type}
+                            </option>
+                          );
+                        })
+                      : "Loading..."}
+                  </select>
                 </div>
               </div>
               <div className="col-span-full sm:col-span-3 flex justify-start items-end">
@@ -254,9 +235,9 @@ const Items = () => {
         </form>
       </section>
       <section className="bg-gray-800 text-gray-100">
-        <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
+        <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
-          {loading === "loaded" && capsule.length === 0 ? (
+          {loading === "loaded" && filterData.length === 0 ? (
             <div className="flex items-center h-full sm:p-16 bg-gray-900 text-gray-100">
               <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg
@@ -288,101 +269,151 @@ const Items = () => {
               </div>
             </div>
           ) : null}
-          {loading === "loaded" ? (
-            capsule.map((nproducts, index) => {
-              return (
-                <div
-                  key={index}
-                  className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
-                >
-                  <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
-                    {nproducts.type}
-                  </span>
-                  <img
-                    src="./capsuleitem.webp"
-                    alt="Capsule Image"
-                    className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
-                  />
-                  <div className="mt-6 mb-2">
-                    <h2 className="text-xl font-semibold tracking-wide">
-                      {nproducts.missions.length > 0
-                        ? nproducts.missions.map((d, i) => {
-                            return (
-                              <span key={i}>
-                                {d.name.slice(0, 24)}
-                                {i < nproducts.missions.length - 1 ? ", " : ""}
-                              </span>
-                            );
-                          })
-                        : "To Be Announced"}
-                    </h2>
-                  </div>
-                  <p className="text-gray-100">
-                    {products &&
-                    nproducts.details &&
-                    nproducts.details.length > 0
-                      ? nproducts.details.slice(0, 33) + "..."
-                      : "Details Coming soon..."}
-                  </p>
-                  <div className="flex justify-center item-center">
-                    <button
-                      onClick={(e) => modalProductClick(e, nproducts)}
-                      type="button"
-                      className="hover:scale-105 hover:border border border-gray-900 hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
-                    >
-                      Read More
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="flex flex-col m-8 rounded shadow-md w-60 sm:w-80 animate-pulse h-96">
-              <div className="h-60 rounded-t bg-gray-700"></div>
-              <div className="flex-1 px-4 py-8 space-y-4 sm:p-8 bg-gray-900">
-                <div className="w-full h-6 rounded bg-gray-700"></div>
-                <div className="w-full h-6 rounded bg-gray-700"></div>
-              </div>
-            </div>
-          )}
         </div>
-        {/* pagination part start */}
-        <div className="flex justify-center items-center py-12">
-          {loading === "loaded" && itemstotal > 4 ? (
-            <nav aria-label="Page navigation">
-              <ReactPaginate
-                nextLabel=">"
-                onPageChange={handlePageClick}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={2}
-                pageCount={pageCount}
-                previousLabel="<"
-                pageClassName="inline-flex items-center px-4 py-2 text-sm font-bold border border-gray-700"
-                pageLinkClassName="py-2"
-                previousClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md border-gray-700"
-                previousLinkClassName="py-2"
-                nextClassName="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md border-gray-700"
-                nextLinkClassName="py-2"
-                breakLabel="..."
-                breakClassName=""
-                breakLinkClassName="py-2"
-                containerClassName="py-2"
-                activeClassName="inline-flex items-center px-4 py-2 text-sm font-semibold border bg-violet-400 text-gray-900 border-gray-700"
-                renderOnZeroPageCount={null}
-              />
-            </nav>
-          ) : null}
+        <div className="bg-gray-800 text-gray-100">
+          <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center mx-auto lg:flex-row lg:justify-center gap-10 ">
+            {loading === "loaded" ? (
+              filterData
+                .slice(page * 4 - 4, page * 4)
+                .map((nproducts, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
+                    >
+                      <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
+                        {nproducts.type}
+                      </span>
+                      <img
+                        src="./capsuleitem.webp"
+                        alt="Capsule Image"
+                        className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
+                      />
+                      <div className="mt-6 mb-2">
+                        <h2 className="text-xl font-semibold tracking-wide">
+                          {nproducts.missions.length > 0
+                            ? nproducts.missions.map((d, i) => {
+                                return (
+                                  <span key={i}>
+                                    {d.name.slice(0, 24)}
+                                    {i < nproducts.missions.length - 1
+                                      ? ", "
+                                      : ""}
+                                  </span>
+                                );
+                              })
+                            : "To Be Announced"}
+                        </h2>
+                      </div>
+                      <p className="text-gray-100">
+                        {products &&
+                        nproducts.details &&
+                        nproducts.details.length > 0
+                          ? nproducts.details.slice(0, 33) + "..."
+                          : "Details Coming soon..."}
+                      </p>
+                      <div className="flex justify-center item-center">
+                        <button
+                          onClick={(e) => modalProductClick(e, nproducts)}
+                          type="button"
+                          className="hover:scale-105 hover:border border border-gray-900 hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
+                        >
+                          Read More
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="flex flex-col m-8 rounded shadow-md w-60 sm:w-80 animate-pulse h-96">
+                <div className="h-60 rounded-t bg-gray-700"></div>
+                <div className="flex-1 px-4 py-8 space-y-4 sm:p-8 bg-gray-900">
+                  <div className="w-full h-6 rounded bg-gray-700"></div>
+                  <div className="w-full h-6 rounded bg-gray-700"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* New Pagination */}
+        <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
+          <nav
+            aria-label="Pagination"
+            className="inline-flex -space-x-px rounded-md shadow-sm dark:bg-gray-800 dark:text-gray-100"
+          >
+            {loading === "loaded" && Math.round(filterData.length / 4) > 4 ? (
+              <>
+                <button
+                  aria-label="previous"
+                  type="button"
+                  className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-l-md dark:border-gray-700"
+                  onClick={() => pageHandle(page - 1)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                </button>
+                {[...Array(Math.round(filterData.length / 4))].map(
+                  (_, index) => {
+                    return (
+                      <button
+                        type="button"
+                        aria-label={`page ${index + 1}`}
+                        className={`${
+                          page === index + 1 ? " bg-violet-400" : null
+                        } inline-flex items-center px-4 py-2 text-sm font-semibold border dark:border-gray-700`}
+                        key={index}
+                        onClick={() => pageHandle(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    );
+                  }
+                )}
+                <button
+                  aria-label="next"
+                  type="button"
+                  className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-r-md dark:border-gray-700"
+                  onClick={() => pageHandle(page + 1)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                </button>
+              </>
+            ) : null}
+          </nav>
         </div>
       </section>
-
-      <section className="relative">
-        {loading === "loaded" && modalProduct ? (
+      {/* Modal Element */}
+      {loading === "loaded" && modalProduct ? (
+        <section className="relative">
           <ProductsModal
             setModalProduct={setModalProduct}
             singleCapsule={singleCapsule}
           />
-        ) : null}
-      </section>
+        </section>
+      ) : null}
     </>
   );
 };
