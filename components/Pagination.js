@@ -1,66 +1,44 @@
-import {
-  fetchProducts,
-  selectProducts,
-  setProducts,
-} from "@/store/productSlice";
-import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useMemo } from "react";
 
-const Pagination = () => {
-  const dispatch = useDispatch();
-
-  const { products, loading, error } = useSelector(selectProducts);
-  
-  useEffect(() => {
-    console.log("USE EFFECT ")
-      dispatch(fetchProducts());
-  }, []);
-
-  const [page, setPage] = useState(1);
-
-  const pageHandle = (prev) => {
-    if (prev > 0 && prev <= Math.round(products.length / 4) && prev !== page)
-      return setPage(prev);
-  };
+const Pagination = ({
+  productsPerPage,
+  totalProducts,
+  paginate,
+  currentPage,
+}) => {
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    for (let i = 1; i <= Math.ceil(totalProducts / productsPerPage); i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [totalProducts, productsPerPage]);
 
   return (
-    
-    <section>
-      {products.length &&
-        products.slice(page * 4 - 4, page * 4).map((items, index) => {
-          return <h1 key={index}>{items.capsule_serial}</h1>;
-        })}
-      {products.length > 0 && (
-        <>
-          <button type="button"
-            className="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-l-md border-gray-700"
-            onClick={() => pageHandle(page - 1)}
-          >
-            Prev
-          </button>
-          {[...Array(Math.round(products.length / 4))].map((_, index) => {
-            return (
-              <button
-                className={`${
-                  page === index + 1 ? " bg-violet-400" : null} inline-flex items-center px-4 py-2 text-sm font-bold border border-gray-700`}
-                key={index}
-                onClick={() => pageHandle(index + 1)}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-          <button
-            className="inline-flex items-center px-6 py-2 text-sm font-bold border rounded-r-md border-gray-700"
-            onClick={() => pageHandle(page + 1)}
-          >
-            Next
-          </button>
-        </>
-      )}
-      </section>
-    
+    <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-2 lg:py-2 lg:flex-row lg:justify-center gap-10 ">
+      <nav
+        aria-label="Pagination"
+        className="inline-flex -space-x-px rounded-md shadow-sm dark:bg-gray-800 dark:text-gray-100"
+      >
+        <ul className="pagination">
+          {pageNumbers.map((number, index) => (
+            <li
+              key={index}
+              className={`${
+                currentPage === index + 1 ? " bg-violet-400" : null
+              } inline-flex items-center px-4 py-2 text-sm font-semibold border dark:border-gray-700`}
+            >
+              <a onClick={(e) =>{ 
+                e.preventDefault();
+                paginate(number)}} href="#">
+                {number}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   );
 };
 
-export default Pagination;
+export default React.memo(Pagination);

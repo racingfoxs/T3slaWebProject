@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, selectProducts } from "../store/productSlice";
+import { fetchProducts, selectProducts, setProducts } from "../store/productSlice";
 import {
   setStatusQuery,
   setTypeQuery,
@@ -18,33 +18,48 @@ const Items = () => {
   );
 
   //Saving FilterData from Products
-  const [filterData, setFilterData] = useState([]);
+  // const [filterData, setFilterData] = useState([]);
+  const [dataFilter, setDataFilter] = useState([])
+  console.log("setDataFilter",dataFilter)
+
 
   //For new pagination
   const [page, setPage] = useState(1);
   const pageHandle = useCallback(
     (prev) => {
-      if (prev > 0 && prev <= Math.round(filterData.length / 4) && prev !== page)
+      if (prev > 0 && prev <= Math.round(products.length / 4) && prev !== page)
         setPage(prev);
     },
-    [filterData, page, setPage]
+    [products, page, setPage]
   );
 
-  console.log("Render")
   useEffect(() => {
-    if (loading === "ideal") {
-      dispatch(fetchProducts());
+          dispatch(fetchProducts());
+        }, [dispatch]);
+  
+  useEffect(() => {
+    if (loading === "loaded" && !error) {
+      setDataFilter([...products]);
+      console.log("setDataFilter UseEffect",dataFilter)
     }
-    if (loading === "loaded") {
-      const dataFilter = products.filter(
-        (product) =>
-          product.status.includes(statusQuery) &&
-          product.type.includes(typeQuery) &&
-          formatDate(product.original_launch).includes(dateQuery)
-      );
-      setFilterData(dataFilter);
-    }
-  }, [dispatch, products, statusQuery, typeQuery, dateQuery]);
+  }, [loading, error, products]);
+  
+  
+  // console.log("Render")
+  // useEffect(() => {
+  //   if (loading === "ideal") {
+  //     dispatch(fetchProducts());
+  //   }
+  //   if (loading === "loaded") {
+  //     const dataFilter = products.filter(
+  //       (product) =>
+  //         product.status.includes(statusQuery) &&
+  //         product.type.includes(typeQuery) &&
+  //         formatDate(product.original_launch).includes(dateQuery)
+  //     );
+  //     setFilterData(dataFilter);
+  //   }
+  // }, [dispatch, products, statusQuery, typeQuery, dateQuery]);
 
   //OnChnage Select Tag
   const onChangeQuery = (type, event) => {
@@ -66,6 +81,7 @@ const Items = () => {
   //Reset button onClickHandler
   const onReset = (e) => {
     e.preventDefault();
+    setDataFilter(products)
     dispatch(setStatusQuery(""));
     dispatch(setTypeQuery(""));
     dispatch(setDateQuery(""));
@@ -81,15 +97,27 @@ const Items = () => {
     [products]
   );
 
-  //Filter for Types
-  const allTypes = useMemo(
-    () => [
-      ...products
+
+  const onChangeQueryNew = (e) => {
+    if(e.length>0){
+    // dispatch(setTypeQuery(e));
+    const typeFilters = products.filter(
+      (product) =>
+      product.type.includes(e)
+      );
+      setDataFilter(typeFilters) }
+    };
+    
+  // Filter for Types
+  const allTypes = [...products
         .reduce((map, obj) => map.set(obj.type, obj), new Map())
-        .values()
-    ],
-    [products]
-  );
+        .values()]
+
+  
+  // const allTypes = [...products
+  //   .reduce((map, obj) => map.set(obj.type, obj), new Map())
+  //   .values()];
+
 
   //Function to conver and get year only
   
@@ -199,14 +227,14 @@ const formatDate = useCallback((dateString) => {
                 </div>
               </div>
               <div className="col-span-full sm:col-span-3">
-                <label htmlFor="email" className="text-sm">
+                <label htmlFor="type" className="text-sm">
                   Type
                 </label>
                 <div>
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                     value={typeQuery}
-                    onChange={(event) => onChangeQuery("type", event)}
+                    onChange={(e) => onChangeQueryNew(e.target.value)}
                   >
                     <option value="">All</option>
                     {loading === "loaded"
@@ -237,7 +265,7 @@ const formatDate = useCallback((dateString) => {
       <section className="bg-gray-800 text-gray-100">
         <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
-          {loading === "loaded" && filterData.length === 0 ? (
+          {/* {loading === "loaded" && filterData.length === 0 ? (
             <div className="flex items-center h-full sm:p-16 bg-gray-900 text-gray-100">
               <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg
@@ -268,12 +296,12 @@ const formatDate = useCallback((dateString) => {
                 <p className="text-3xl">Sorry ! No Result Found</p>
               </div>
             </div>
-          ) : null}
+          ) : null} */}
         </div>
         <div className="bg-gray-800 text-gray-100">
           <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center mx-auto lg:flex-row lg:justify-center gap-10 ">
             {loading === "loaded" ? (
-              filterData
+              dataFilter
                 .slice(page * 4 - 4, page * 4)
                 .map((nproducts, index) => {
                   return (
@@ -341,7 +369,7 @@ const formatDate = useCallback((dateString) => {
             aria-label="Pagination"
             className="inline-flex -space-x-px rounded-md shadow-sm dark:bg-gray-800 dark:text-gray-100"
           >
-            {loading === "loaded" && Math.round(filterData.length / 4) > 4 ? (
+            {loading === "loaded" && Math.round(products.length / 4) > 4 ? (
               <>
                 <button
                   aria-label="previous"
@@ -363,7 +391,7 @@ const formatDate = useCallback((dateString) => {
                     ></path>
                   </svg>
                 </button>
-                {[...Array(Math.round(filterData.length / 4))].map(
+                {[...Array(Math.round(products.length / 4))].map(
                   (_, index) => {
                     return (
                       <button
