@@ -3,27 +3,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts, selectProducts } from "../store/productSlice";
 import Pagination from "./Pagination";
 import ProductsModal from "./ProductsModal";
+import {
+  setStatusFilter,
+  setTypeFilter,
+  setDateFilter,
+} from "../store/filterSlice";
 
 const Items = () => {
   const dispatch = useDispatch();
 
   // Getting data from Redux store
   const { products, loading, error } = useSelector(selectProducts);
-
-  console.log("Fetching Data", loading)
+  const { statusFilter, typeFilter, dateFilter } = useSelector(
+    (state) => state.filterSlice
+  );
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  const [statusFilter, setStatusFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(4);
 
   const filteredProducts = products.filter(
-      (product) =>
+    (product) =>
       product.status.toLowerCase().includes(statusFilter.toLowerCase()) &&
       product.type.toLowerCase().includes(typeFilter.toLowerCase()) &&
       (dateFilter === "" ||
@@ -32,7 +35,6 @@ const Items = () => {
           .toString()
           .includes(dateFilter))
   );
-
 
   //Getting Dynamic Select Optioins
   const optionStatus = [...new Set(products.map((product) => product.status))];
@@ -52,12 +54,9 @@ const Items = () => {
   //Reset Button
   const onReset = (e) => {
     e.preventDefault();
-    setStatusFilter("");
-    setTypeFilter("");
-    setDateFilter("");
-    // dispatch(setStatusFilter(""));
-    // dispatch(setTypeFilter(""));
-    // dispatch(setDateFilter(""));
+    dispatch(setStatusFilter(""));
+    dispatch(setTypeFilter(""));
+    dispatch(setDateFilter(""));
   };
 
   //modal code start here by raj
@@ -97,7 +96,10 @@ const Items = () => {
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                     value={dateFilter}
-                    onChange={(e) => {setCurrentPage(1); setDateFilter(e.target.value)}}
+                    onChange={(e) => {
+                      setCurrentPage(1);
+                      dispatch(setDateFilter(e.target.value));
+                    }}
                   >
                     <option value="">All</option>
                     {Array.from(
@@ -122,7 +124,10 @@ const Items = () => {
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                     value={statusFilter}
-                    onChange={(e) => {setCurrentPage(1); setStatusFilter(e.target.value);}}
+                    onChange={(e) => {
+                      setCurrentPage(1);
+                      dispatch(setStatusFilter(e.target.value));
+                    }}
                   >
                     <option value="">All</option>
                     {optionStatus.map((option) => (
@@ -141,7 +146,10 @@ const Items = () => {
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                     value={typeFilter}
-                    onChange={(e) => {setCurrentPage(1); setTypeFilter(e.target.value);}}
+                    onChange={(e) => {
+                      setCurrentPage(1);
+                      dispatch(setTypeFilter(e.target.value));
+                    }}
                   >
                     <option value="">All</option>
                     {optionTypes.map((option) => (
@@ -265,7 +273,7 @@ const Items = () => {
           </div>
         </div>
         {/* New Pagination */}
-        
+
         <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
           <Pagination
             productsPerPage={productsPerPage}

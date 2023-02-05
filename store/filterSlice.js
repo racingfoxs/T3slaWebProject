@@ -1,28 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  statusQuery: "",
-  typeQuery: "",
-  dateQuery: "",
+  statusFilter: "",
+  typeFilter: "",
+  dateFilter: "",
 }
 
 export const filterSlice = createSlice({
-  name: 'squery',
+  name: 'filterQuery',
   initialState,
   reducers: {
-    setStatusQuery: (state, action) => {
-        state.statusQuery = action.payload
+    setStatusFilter: (state, action) => {
+        state.statusFilter = action.payload
       },
-      setTypeQuery: (state, action) => {
-        state.typeQuery = action.payload
+      setTypeFilter: (state, action) => {
+        state.typeFilter = action.payload
       },
-      setDateQuery: (state, action) => {
-        state.dateQuery = action.payload
+      setDateFilter: (state, action) => {
+        state.dateFilter = action.payload
       },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setStatusQuery, setTypeQuery, setDateQuery } = filterSlice.actions
+export const { setStatusFilter, setTypeFilter, setDateFilter } = filterSlice.actions
 
 export default filterSlice
