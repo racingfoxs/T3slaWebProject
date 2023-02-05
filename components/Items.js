@@ -10,7 +10,7 @@ const Items = () => {
   // Getting data from Redux store
   const { products, loading, error } = useSelector(selectProducts);
 
-  console.log(loading)
+  console.log("Fetching Data", loading)
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -94,7 +94,6 @@ const Items = () => {
                   Original launch
                 </label>
                 <div>
-                  {console.log(currentPage)}
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
                     value={dateFilter}

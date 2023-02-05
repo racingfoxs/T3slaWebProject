@@ -24,6 +24,7 @@ const Pagination = ({
           
           {currentPage>1 && <li  className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-l-md dark:border-gray-700">
             <a
+            aria-label="Previous"
               onClick={(e) => {
                 e.preventDefault();
                 paginate(currentPage - 1);
@@ -53,6 +54,7 @@ const Pagination = ({
               } inline-flex items-center px-4 py-2 text-sm font-semibold border dark:border-gray-700`}
             >
               <a
+              aria-label={number}
                 onClick={(e) => {
                   e.preventDefault();
                   paginate(number);
@@ -66,6 +68,7 @@ const Pagination = ({
           {currentPage<pageNumbers.length && <li className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-r-md dark:border-gray-700"
                  >
             <a
+            aria-label="Next"
               onClick={(e) => {
                 e.preventDefault();
                 
