@@ -1,151 +1,63 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, selectProducts, setProducts } from "../store/productSlice";
-import {
-  setStatusQuery,
-  setTypeQuery,
-  setDateQuery,
-} from "../store/filterSlice";
+import { fetchProducts, selectProducts } from "../store/productSlice";
+import Pagination from "./Pagination";
 import ProductsModal from "./ProductsModal";
 
 const Items = () => {
   const dispatch = useDispatch();
 
-  //Getting data from Redux store
+  // Getting data from Redux store
   const { products, loading, error } = useSelector(selectProducts);
-  const { statusQuery, typeQuery, dateQuery } = useSelector(
-    (state) => state.filterSlice
-  );
 
-  //Saving FilterData from Products
-  // const [filterData, setFilterData] = useState([]);
-  const [dataFilter, setDataFilter] = useState([])
-  console.log("setDataFilter",dataFilter)
-
-
-  //For new pagination
-  const [page, setPage] = useState(1);
-  const pageHandle = useCallback(
-    (prev) => {
-      if (prev > 0 && prev <= Math.round(products.length / 4) && prev !== page)
-        setPage(prev);
-    },
-    [products, page, setPage]
-  );
+  console.log(loading)
 
   useEffect(() => {
-          dispatch(fetchProducts());
-        }, [dispatch]);
-  
-  useEffect(() => {
-    if (loading === "loaded" && !error) {
-      setDataFilter([...products]);
-      console.log("setDataFilter UseEffect",dataFilter)
-    }
-  }, [loading, error, products]);
-  
-  
-  // console.log("Render")
-  // useEffect(() => {
-  //   if (loading === "ideal") {
-  //     dispatch(fetchProducts());
-  //   }
-  //   if (loading === "loaded") {
-  //     const dataFilter = products.filter(
-  //       (product) =>
-  //         product.status.includes(statusQuery) &&
-  //         product.type.includes(typeQuery) &&
-  //         formatDate(product.original_launch).includes(dateQuery)
-  //     );
-  //     setFilterData(dataFilter);
-  //   }
-  // }, [dispatch, products, statusQuery, typeQuery, dateQuery]);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
-  //OnChnage Select Tag
-  const onChangeQuery = (type, event) => {
-    switch (type) {
-      case "status":
-        dispatch(setStatusQuery(event.target.value));
-        break;
-      case "type":
-        dispatch(setTypeQuery(event.target.value));
-        break;
-      case "date":
-        dispatch(setDateQuery(event.target.value));
-        break;
-      default:
-        break;
-    }
-  };
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(4);
 
-  //Reset button onClickHandler
+  const filteredProducts = products.filter(
+      (product) =>
+      product.status.toLowerCase().includes(statusFilter.toLowerCase()) &&
+      product.type.toLowerCase().includes(typeFilter.toLowerCase()) &&
+      (dateFilter === "" ||
+        new Date(product.original_launch)
+          .getFullYear()
+          .toString()
+          .includes(dateFilter))
+  );
+
+
+  //Getting Dynamic Select Optioins
+  const optionStatus = [...new Set(products.map((product) => product.status))];
+  const optionTypes = [...new Set(products.map((product) => product.type))];
+
+  // Get current products
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  //Reset Button
   const onReset = (e) => {
     e.preventDefault();
-    setDataFilter(products)
-    dispatch(setStatusQuery(""));
-    dispatch(setTypeQuery(""));
-    dispatch(setDateQuery(""));
-  };
-
-  //Filter for Status
-  const allStatus = useMemo(
-    () => [
-      ...products
-        .reduce((map, obj) => map.set(obj.status, obj), new Map())
-        .values()
-    ],
-    [products]
-  );
-
-
-  const onChangeQueryNew = (e) => {
-    if(e.length>0){
-    // dispatch(setTypeQuery(e));
-    const typeFilters = products.filter(
-      (product) =>
-      product.type.includes(e)
-      );
-      setDataFilter(typeFilters) }
-    };
-    
-  // Filter for Types
-  const allTypes = [...products
-        .reduce((map, obj) => map.set(obj.type, obj), new Map())
-        .values()]
-
-  
-  // const allTypes = [...products
-  //   .reduce((map, obj) => map.set(obj.type, obj), new Map())
-  //   .values()];
-
-
-  //Function to conver and get year only
-  
-const formatDate = useCallback((dateString) => {
-  const options = { year: "numeric" };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-}, []);
-
-  //Filter for Date
-  const allDatesUnix = useMemo(
-    () => [
-      ...products
-        .reduce(
-          (map, obj) => map.set(formatDate(obj.original_launch), obj),
-          new Map()
-        )
-        .values()
-    ],
-    [products, formatDate]
-  );
-
-  //To Captilized the first letter of array
-  const capitalizeWords = (str) => {
-    return str
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    setStatusFilter("");
+    setTypeFilter("");
+    setDateFilter("");
+    // dispatch(setStatusFilter(""));
+    // dispatch(setTypeFilter(""));
+    // dispatch(setDateFilter(""));
   };
 
   //modal code start here by raj
@@ -182,24 +94,24 @@ const formatDate = useCallback((dateString) => {
                   Original launch
                 </label>
                 <div>
+                  {console.log(currentPage)}
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                    value={dateQuery}
-                    onChange={(event) => onChangeQuery("date", event)}
+                    value={dateFilter}
+                    onChange={(e) => {setCurrentPage(1); setDateFilter(e.target.value)}}
                   >
                     <option value="">All</option>
-                    {loading === "loaded"
-                      ? allDatesUnix.map((items, index) => {
-                          return (
-                            <option
-                              key={index}
-                              value={formatDate(items.original_launch)}
-                            >
-                              {formatDate(items.original_launch)}
-                            </option>
-                          );
-                        })
-                      : "Loading"}
+                    {Array.from(
+                      new Set(
+                        products.map((product) =>
+                          new Date(product.original_launch).getFullYear()
+                        )
+                      )
+                    ).map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -210,19 +122,15 @@ const formatDate = useCallback((dateString) => {
                 <div>
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                    value={statusQuery}
-                    onChange={(event) => onChangeQuery("status", event)}
+                    value={statusFilter}
+                    onChange={(e) => {setCurrentPage(1); setStatusFilter(e.target.value);}}
                   >
                     <option value="">All</option>
-                    {loading === "loaded"
-                      ? allStatus.map((items, index) => {
-                          return (
-                            <option key={index} value={items.status}>
-                              {capitalizeWords(items.status)}
-                            </option>
-                          );
-                        })
-                      : "Loading"}
+                    {optionStatus.map((option) => (
+                      <option key={option} value={option.toLowerCase()}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -233,19 +141,15 @@ const formatDate = useCallback((dateString) => {
                 <div>
                   <select
                     className="w-full rounded-md focus:ring focus:ring-opacity-75 focus:ring-violet-400 border-gray-700 text-gray-900"
-                    value={typeQuery}
-                    onChange={(e) => onChangeQueryNew(e.target.value)}
+                    value={typeFilter}
+                    onChange={(e) => {setCurrentPage(1); setTypeFilter(e.target.value);}}
                   >
                     <option value="">All</option>
-                    {loading === "loaded"
-                      ? allTypes.map((items, index) => {
-                          return (
-                            <option key={index} value={items.type}>
-                              {items.type}
-                            </option>
-                          );
-                        })
-                      : "Loading..."}
+                    {optionTypes.map((option) => (
+                      <option key={option} value={option.toLowerCase()}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -265,7 +169,7 @@ const formatDate = useCallback((dateString) => {
       <section className="bg-gray-800 text-gray-100">
         <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto lg:flex-row lg:justify-center gap-10 ">
           {loading === "error" && error ? `Error: ${error}` : null}
-          {/* {loading === "loaded" && filterData.length === 0 ? (
+          {loading === "loaded" && filteredProducts.length <= 0 ? (
             <div className="flex items-center h-full sm:p-16 bg-gray-900 text-gray-100">
               <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg
@@ -296,62 +200,60 @@ const formatDate = useCallback((dateString) => {
                 <p className="text-3xl">Sorry ! No Result Found</p>
               </div>
             </div>
-          ) : null} */}
+          ) : null}
         </div>
         <div className="bg-gray-800 text-gray-100">
           <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center mx-auto lg:flex-row lg:justify-center gap-10 ">
             {loading === "loaded" ? (
-              dataFilter
-                .slice(page * 4 - 4, page * 4)
-                .map((nproducts, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
-                    >
-                      <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
-                        {nproducts.type}
-                      </span>
-                      <img
-                        src="./capsuleitem.webp"
-                        alt="Capsule Image"
-                        className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
-                      />
-                      <div className="mt-6 mb-2">
-                        <h2 className="text-xl font-semibold tracking-wide">
-                          {nproducts.missions.length > 0
-                            ? nproducts.missions.map((d, i) => {
-                                return (
-                                  <span key={i}>
-                                    {d.name.slice(0, 24)}
-                                    {i < nproducts.missions.length - 1
-                                      ? ", "
-                                      : ""}
-                                  </span>
-                                );
-                              })
-                            : "To Be Announced"}
-                        </h2>
-                      </div>
-                      <p className="text-gray-100">
-                        {products &&
-                        nproducts.details &&
-                        nproducts.details.length > 0
-                          ? nproducts.details.slice(0, 33) + "..."
-                          : "Details Coming soon..."}
-                      </p>
-                      <div className="flex justify-center item-center">
-                        <button
-                          onClick={(e) => modalProductClick(e, nproducts)}
-                          type="button"
-                          className="hover:scale-105 hover:border border border-gray-900 hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
-                        >
-                          Read More
-                        </button>
-                      </div>
+              currentProducts.map((nproducts, index) => {
+                return (
+                  <div
+                    key={index}
+                    className=" max-w-xs p-6 rounded-md shadow-md bg-gray-900 text-gray-50 hover:scale-105 transition-all ease-in-out"
+                  >
+                    <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
+                      {nproducts.type}
+                    </span>
+                    <img
+                      src="./capsuleitem.webp"
+                      alt="Capsule Image"
+                      className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
+                    />
+                    <div className="mt-6 mb-2">
+                      <h2 className="text-xl font-semibold tracking-wide">
+                        {nproducts.missions.length > 0
+                          ? nproducts.missions.map((d, i) => {
+                              return (
+                                <span key={i}>
+                                  {d.name.slice(0, 24)}
+                                  {i < nproducts.missions.length - 1
+                                    ? ", "
+                                    : ""}
+                                </span>
+                              );
+                            })
+                          : "To Be Announced"}
+                      </h2>
                     </div>
-                  );
-                })
+                    <p className="text-gray-100">
+                      {products &&
+                      nproducts.details &&
+                      nproducts.details.length > 0
+                        ? nproducts.details.slice(0, 33) + "..."
+                        : "Details Coming soon..."}
+                    </p>
+                    <div className="flex justify-center item-center">
+                      <button
+                        onClick={(e) => modalProductClick(e, nproducts)}
+                        type="button"
+                        className="hover:scale-105 hover:border border border-gray-900 hover:bg-gray-900 hover:text-gray-100 hover:border-gray-100 transition-all ease-in-out mt-5 px-8 py-3 text-lg font-semibold rounded bg-violet-400 text-gray-900"
+                      >
+                        Read More
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             ) : (
               <div className="flex flex-col m-8 rounded shadow-md w-60 sm:w-80 animate-pulse h-96">
                 <div className="h-60 rounded-t bg-gray-700"></div>
@@ -364,78 +266,19 @@ const formatDate = useCallback((dateString) => {
           </div>
         </div>
         {/* New Pagination */}
+        
         <div className="container flex items-center lg:items-start flex-col flex-wrap justify-center p-6 mx-auto sm:py-12 lg:py-20 lg:flex-row lg:justify-center gap-10 ">
-          <nav
-            aria-label="Pagination"
-            className="inline-flex -space-x-px rounded-md shadow-sm dark:bg-gray-800 dark:text-gray-100"
-          >
-            {loading === "loaded" && Math.round(products.length / 4) > 4 ? (
-              <>
-                <button
-                  aria-label="previous"
-                  type="button"
-                  className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-l-md dark:border-gray-700"
-                  onClick={() => pageHandle(page - 1)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-                {[...Array(Math.round(products.length / 4))].map(
-                  (_, index) => {
-                    return (
-                      <button
-                        type="button"
-                        aria-label={`page ${index + 1}`}
-                        className={`${
-                          page === index + 1 ? " bg-violet-400" : null
-                        } inline-flex items-center px-4 py-2 text-sm font-semibold border dark:border-gray-700`}
-                        key={index}
-                        onClick={() => pageHandle(index + 1)}
-                      >
-                        {index + 1}
-                      </button>
-                    );
-                  }
-                )}
-                <button
-                  aria-label="next"
-                  type="button"
-                  className="inline-flex items-center px-2 py-2 text-sm font-semibold border rounded-r-md dark:border-gray-700"
-                  onClick={() => pageHandle(page + 1)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-              </>
-            ) : null}
-          </nav>
+          <Pagination
+            productsPerPage={productsPerPage}
+            totalProducts={filteredProducts.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
         </div>
       </section>
       {/* Modal Element */}
       {loading === "loaded" && modalProduct ? (
-        <section className="relative">
+        <section>
           <ProductsModal
             setModalProduct={setModalProduct}
             singleCapsule={singleCapsule}
