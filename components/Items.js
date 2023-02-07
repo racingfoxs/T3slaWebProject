@@ -8,6 +8,7 @@ import {
   setTypeFilter,
   setDateFilter,
 } from "../store/filterSlice";
+import Image from "next/image";
 
 const Items = () => {
   const dispatch = useDispatch();
@@ -221,10 +222,13 @@ const Items = () => {
                     <span className="block pb-4 text-xs font-medium tracking-widest uppercase text-violet-400">
                       {nproducts.type}
                     </span>
-                    <img
-                      src="./capsuleitem.webp"
+                    <Image
+                    height={400}
+                    width={400}
+                    priority
+                      src="/capsuleitem.webp"
                       alt="Capsule Image"
-                      className="object-cover object-center w-full rounded-md h-72 bg-gray-500"
+                      
                     />
                     <div className="mt-6 mb-2">
                       <h2 className="text-xl font-semibold tracking-wide">
